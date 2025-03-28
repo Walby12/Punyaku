@@ -4,53 +4,64 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"time"
+	"path/filepath"
+	"strings"
 )
 
-func gen_code() {
-	start := `
-package main
+func compile_assembly(file_path string) {
+	// Generate the .asm file
+	gen_asm_file(file_path)
 
-import (
-	"fmt"
-)
+	// Use filepath.Ext to get the file extension
+	path_ext := filepath.Ext(file_path)
 
-func main() {
-	fmt.Println("Hello world")
-}
-	`
-	err := os.WriteFile("out.go", []byte(start), 0644)
-	if err != nil {
-		fmt.Println("Failed to write the code:", err)
-		os.Exit(-1)
-	}
-	cmd := exec.Command("go", "build", "out.go")
+	// Use strings.TrimSuffix to remove the extension and add ".exe"
+	new_file_path_ext := strings.TrimSuffix(file_path, path_ext) + ".exe"
+
+	// Call the Makefile to compile the assembly code
+	cmd := exec.Command("make", fmt.Sprintf("ASM_FILE=%s", file_path), fmt.Sprintf("EXE_FILE=%s", new_file_path_ext))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
 		fmt.Println("Compilation failed,", err)
 		os.Exit(-1)
 	} else {
-		fmt.Println("Compilation phase succesful, exec created: out")
+		fmt.Println("Compilation phase successful, file created:", new_file_path_ext)
 	}
-	time.Sleep(2 * time.Second)
-	cmd = exec.Command("cmd", "/C", "del", "out.go")
-	err = cmd.Run()
-	if err != nil {
-		fmt.Println("Clean up failed,", err)
-		os.Exit(-1)
-	} else {
-		fmt.Println("Clean up phase succesful")
-	}
-	//stack := []Instruction{}
-	/*
-		for _, code := range code_to_gen {
-			switch code.op_code {
-			case OP_PUSH:
+}
 
-			}
-		}
-	*/
+func gen_code() string {
+	// This function would generate the assembly code and write it to the file
+
+	start_asm_code := `
+%define SYS_EXIT 60
+
+segment .text
+global main
+main:
+
+`
+	var asmCodeBuilder strings.Builder
+	asmCodeBuilder.WriteString(start_asm_code)
+
+	asmCodeBuilder.WriteString("    mov rax, SYS_EXIT\n")
+	asmCodeBuilder.WriteString("    mov rdi, 42\n")
+	asmCodeBuilder.WriteString("    syscall\n")
+
+	return asmCodeBuilder.String()
+}
+
+func gen_asm_file(out_file_path string) {
+	// Generate the assembly code as a string
+	asm_code := gen_code()
+
+	// Write the assembly code to the specified file
+	err := os.WriteFile(out_file_path, []byte(asm_code), 0644)
+	if err != nil {
+		fmt.Println("Error writing assembly file:", err)
+		os.Exit(-1)
+	}
+
+	fmt.Println("Assembly file created:", out_file_path)
 }

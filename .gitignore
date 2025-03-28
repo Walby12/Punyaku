@@ -1,2 +1,6 @@
 .dist/
 out.exe
+*.o
+*.obj
+*.exe
+*asm
