@@ -9,7 +9,6 @@ import (
 )
 
 func gen_code(program []Instruction) string {
-	// Start the assembly code with the necessary directives
 	start_asm_code := `%define SYS_EXIT 60
 
 section .text
@@ -74,7 +73,6 @@ _start:
 	asmCodeBuilder.WriteString(start_asm_code)
 
 	for _, instruction := range program {
-		// Convert each instruction to its assembly equivalent
 		switch instruction.op_code {
 		case OP_PUSH:
 			asmCodeBuilder.WriteString(fmt.Sprintf("    ;; -- push %d --\n", instruction.value))
@@ -110,18 +108,15 @@ _start:
 }
 
 func gen_asm_file(out_file_path string, program []Instruction) {
-	// Generate the assembly code as a string
 	asm_code := gen_code(program)
 
-	// Create or overwrite the specified file
 	file, err := os.Create(out_file_path)
 	if err != nil {
 		fmt.Println("Error creating assembly file:", err)
 		os.Exit(-1)
 	}
-	defer file.Close() // Ensure the file is closed after writing
+	defer file.Close()
 
-	// Write the assembly code to the file
 	_, err = file.WriteString(asm_code)
 	if err != nil {
 		fmt.Println("Error writing to assembly file:", err)
@@ -129,13 +124,10 @@ func gen_asm_file(out_file_path string, program []Instruction) {
 	}
 
 	fmt.Println("Assembly file created:", out_file_path)
-	// Use filepath.Ext to get the file extension
 	path_ext := filepath.Ext(out_file_path)
 
-	// Use strings.TrimSuffix to remove the extension and add ".exe"
 	new_file_path_ext := strings.TrimSuffix(out_file_path, path_ext) + ""
 
-	// Call the Makefile to compile the assembly code
 	cmd := exec.Command("make", fmt.Sprintf("ASM_FILE=%s", out_file_path), fmt.Sprintf("EXE_FILE=%s", new_file_path_ext))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

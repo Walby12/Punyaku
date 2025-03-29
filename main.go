@@ -28,7 +28,7 @@ func usage() int {
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Println("USAGE: Punyaku <SUBCOMMAND> <file_name>")
+		usage()
 		os.Exit(1)
 	}
 
@@ -37,7 +37,6 @@ func main() {
 
 	check_extension(filePath)
 
-	// Parse the program from the .pun file
 	program := parse_program(filePath)
 
 	switch subcommand {
@@ -48,6 +47,7 @@ func main() {
 		gen_asm_file(asmFilePath, program)
 	default:
 		fmt.Println("Error: unrecognized subcommand:", subcommand)
+		usage()
 		os.Exit(1)
 	}
 }
@@ -95,17 +95,16 @@ func parse_program(file_path string) []Instruction {
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, ";;") { // Skip empty lines or comments
+		if line == "" || strings.HasPrefix(line, ";;") {
 			continue
 		}
 
-		// Split the line into tokens
 		tokens := strings.Fields(line)
 		i := 0
 		for i < len(tokens) {
 			op := strings.ToUpper(tokens[i])
 			switch op {
-			case "=": // PUSH instruction
+			case "=":
 				if i+1 >= len(tokens) {
 					fmt.Println("Error: PUSH requires a value")
 					os.Exit(-1)
@@ -116,14 +115,14 @@ func parse_program(file_path string) []Instruction {
 					os.Exit(-1)
 				}
 				program = append(program, push(value))
-				i += 2 // Move to the next instruction
-			case "+": // PLUS instruction
+				i += 2
+			case "+":
 				program = append(program, plus())
 				i++
-			case "-": // MINUS instruction
+			case "-":
 				program = append(program, minus())
 				i++
-			case ".": // DUMP instruction
+			case ".":
 				program = append(program, dump())
 				i++
 			default:
