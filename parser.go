@@ -18,7 +18,7 @@ const (
 	OP_PLUS
 	OP_MINUS
 	OP_DUMP
-	OP_PRINT_STACK
+	OP_EQUALS
 	COUNT_OPS
 	COUNT
 )
@@ -39,8 +39,8 @@ func minus() Instruction {
 	return Instruction{OP_MINUS, nil}
 }
 
-func print_stack() Instruction {
-	return Instruction{OP_PRINT_STACK, nil}
+func equals() Instruction {
+	return Instruction{OP_EQUALS, nil}
 }
 
 func parse_program(file_path string) []Instruction {
@@ -68,7 +68,7 @@ func parse_program(file_path string) []Instruction {
 		for i < len(tokens) {
 			op := tokens[i]
 			switch op {
-			case "£":
+			case "int":
 				if i+1 >= len(tokens) {
 					fmt.Println("Error: PUSH requires a value", "on line:", num_line, "at index:", i)
 					os.Exit(-1)
@@ -111,8 +111,20 @@ func parse_program(file_path string) []Instruction {
 				stack = stack[:len(stack)-1]
 				program = append(program, dump())
 				i++
-			case ".s":
-				program = append(program, print_stack())
+			case "=":
+				if len(stack) < 2 {
+					fmt.Println("Error: not enough values on the stack for EQUALS", "on line:", num_line, "at index:", i)
+					os.Exit(-1)
+				}
+				a := stack[len(stack)-1]
+				b := stack[len(stack)-2]
+				stack = stack[:len(stack)-2]
+				if a == b {
+					stack = append(stack, 1)
+				} else {
+					stack = append(stack, 0)
+				}
+				program = append(program, equals())
 				i++
 			default:
 				fmt.Println("Error: unrecognized instruction:", op, "with start at index:", i, "on line:", num_line)

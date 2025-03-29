@@ -72,7 +72,7 @@ _start:
 	var asmCodeBuilder strings.Builder
 	asmCodeBuilder.WriteString(start_asm_code)
 
-	for _, instruction := range program {
+	for instructionIndex, instruction := range program {
 		switch instruction.op_code {
 		case OP_PUSH:
 			asmCodeBuilder.WriteString(fmt.Sprintf("    ;; -- push %d --\n", instruction.value))
@@ -93,9 +93,19 @@ _start:
 			asmCodeBuilder.WriteString("    ;; -- dump --\n")
 			asmCodeBuilder.WriteString("    pop rdi\n")
 			asmCodeBuilder.WriteString("    call dump\n")
-		case OP_PRINT_STACK:
-			asmCodeBuilder.WriteString("    ;; -- print stack --\n")
-			asmCodeBuilder.WriteString("    ;; TODO: implement it\n")
+		case OP_EQUALS:
+			uniqueID := fmt.Sprintf("%d", instructionIndex)
+			asmCodeBuilder.WriteString("    ;; -- equals --\n")
+			asmCodeBuilder.WriteString("    pop rbx\n")
+			asmCodeBuilder.WriteString("    pop rax\n")
+			asmCodeBuilder.WriteString(fmt.Sprintf("    cmp rax, rbx\n"))
+			asmCodeBuilder.WriteString(fmt.Sprintf("    jne .Lfalse_%s\n", uniqueID))
+			asmCodeBuilder.WriteString("    push 1\n")
+			asmCodeBuilder.WriteString(fmt.Sprintf("    jmp .Lend_%s\n", uniqueID))
+			asmCodeBuilder.WriteString(fmt.Sprintf(".Lfalse_%s:\n", uniqueID))
+			asmCodeBuilder.WriteString("    push 0\n")
+			asmCodeBuilder.WriteString(fmt.Sprintf(".Lend_%s:\n", uniqueID))
+
 		default:
 			fmt.Println("Error: unrecognized operation code:", instruction.op_code)
 			os.Exit(-1)

@@ -64,12 +64,20 @@ func sim_prog(program []Instruction) {
 			top := stack[len(stack)-1]
 			fmt.Println(top.value)
 
-		case OP_PRINT_STACK:
-			fmt.Println("--- !!! Stack contents !!! ---")
-			for i := len(stack) - 1; i >= 0; i-- {
-				fmt.Println(stack[i].value)
+		case OP_EQUALS:
+			if len(stack) < 2 {
+				fmt.Println("Error: Not enough values for EQUALS operation")
+				os.Exit(1)
 			}
-			fmt.Println("--- !!! End of stack !!! ---")
+
+			val1 := stack[len(stack)-1]
+			val2 := stack[len(stack)-2]
+
+			if val1.value == val2.value {
+				stack = append(stack, Instruction{op_code: OP_PUSH, value: 1})
+			} else {
+				stack = append(stack, Instruction{op_code: OP_PUSH, value: 0})
+			}
 
 		default:
 			fmt.Println("Unknown instruction:", instr.op_code)
