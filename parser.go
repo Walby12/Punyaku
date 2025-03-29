@@ -11,6 +11,7 @@ import (
 type Instruction struct {
 	op_code int
 	value   any
+	line    int
 }
 
 const (
@@ -19,28 +20,38 @@ const (
 	OP_MINUS
 	OP_DUMP
 	OP_EQUALS
+	OP_IF
+	OP_END
 	COUNT_OPS
 	COUNT
 )
 
 func push(x any) Instruction {
-	return Instruction{OP_PUSH, x}
+	return Instruction{OP_PUSH, x, -1}
 }
 
 func plus() Instruction {
-	return Instruction{OP_PLUS, nil}
+	return Instruction{OP_PLUS, nil, -1}
 }
 
 func dump() Instruction {
-	return Instruction{OP_DUMP, nil}
+	return Instruction{OP_DUMP, nil, -1}
 }
 
 func minus() Instruction {
-	return Instruction{OP_MINUS, nil}
+	return Instruction{OP_MINUS, nil, -1}
 }
 
 func equals() Instruction {
-	return Instruction{OP_EQUALS, nil}
+	return Instruction{OP_EQUALS, nil, -1}
+}
+
+func if_op() Instruction {
+	return Instruction{OP_IF, nil, -1}
+}
+
+func end_op() Instruction {
+	return Instruction{OP_END, nil, -1}
 }
 
 func parse_program(file_path string) []Instruction {
@@ -60,6 +71,7 @@ func parse_program(file_path string) []Instruction {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, ";;") {
+			num_line++
 			continue
 		}
 
@@ -75,7 +87,7 @@ func parse_program(file_path string) []Instruction {
 				}
 				value, err := strconv.Atoi(tokens[i+1])
 				if err != nil {
-					fmt.Println("Error: invalid value for PUSH:", tokens[i+1], "on line:", num_line, "at index:", i)
+					fmt.Println("Error: invalid int value for PUSH:", tokens[i+1], "on line:", num_line, "at index:", i)
 					os.Exit(-1)
 				}
 				stack = append(stack, value)
@@ -126,8 +138,14 @@ func parse_program(file_path string) []Instruction {
 				}
 				program = append(program, equals())
 				i++
+			case "if":
+				program = append(program, if_op())
+				i++
+			case "end":
+				program = append(program, end_op())
+				i++
 			default:
-				fmt.Println("Error: unrecognized instruction:", op, "with start at index:", i, "on line:", num_line)
+				fmt.Println("Error: unrecognized instruction:", op, "on line:", num_line, "at index:", i)
 				os.Exit(-1)
 			}
 		}
@@ -140,4 +158,30 @@ func parse_program(file_path string) []Instruction {
 	}
 
 	return program
+}
+
+func validate_if_end_balance(program []Instruction) {
+	balance := 0
+
+	for _, instr := range program {
+		switch instr.op_code {
+		case OP_IF:
+			balance++
+		case OP_END:
+			balance--
+			if balance < 0 {
+				fmt.Printf("Error: Unmatched 'end' at instruction")
+				os.Exit(1)
+			}
+		}
+	}
+
+	if balance != 0 {
+		for _, instr := range program {
+			if instr.op_code == OP_IF {
+				fmt.Printf("Error: Unmatched 'if' at instruction")
+				os.Exit(1)
+			}
+		}
+	}
 }

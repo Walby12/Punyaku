@@ -152,3 +152,14 @@ func gen_asm_file(out_file_path string, program []Instruction) {
 		fmt.Println("Compilation phase successful, file created:", new_file_path_ext)
 	}
 }
+
+func run_asm_file(asmFilePath string) {
+	cmd := exec.Command("./" + asmFilePath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Error running file:", err)
+		os.Exit(-1)
+	}
+}
