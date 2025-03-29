@@ -4,6 +4,6 @@ Punyaku is a lightweight stack based langauge inspired by the forth project by T
 
 ## Quick Start
 ```console
-$ ./Punyaku com [assmebly file_name] ;; This compiles the program
-$ ./Punyaku sim ;; This simulates the program
-& ./[file_name]
+$ ./Punyaku com <file_path> ;; This compiles the program
+$ ./Punyaku sim <file_path> ;; This simulates the program
+& ./[file_path]
