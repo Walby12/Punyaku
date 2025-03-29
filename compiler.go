@@ -93,6 +93,9 @@ _start:
 			asmCodeBuilder.WriteString("    ;; -- dump --\n")
 			asmCodeBuilder.WriteString("    pop rdi\n")
 			asmCodeBuilder.WriteString("    call dump\n")
+		case OP_PRINT_STACK:
+			asmCodeBuilder.WriteString("    ;; -- print stack --\n")
+			asmCodeBuilder.WriteString("    ;; TODO: implement it\n")
 		default:
 			fmt.Println("Error: unrecognized operation code:", instruction.op_code)
 			os.Exit(-1)

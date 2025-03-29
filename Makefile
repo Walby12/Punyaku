@@ -20,6 +20,3 @@ $(EXE_FILE): $(OBJ_FILE)
 
 $(OBJ_FILE): $(ASM_FILE)
 	$(AS) $(ASFLAGS) -o $(OBJ_FILE) $(ASM_FILE)
-
-clean:
-	rm -f $(OBJ_FILE) $(EXE_FILE)

@@ -64,6 +64,13 @@ func sim_prog(program []Instruction) {
 			top := stack[len(stack)-1]
 			fmt.Println(top.value)
 
+		case OP_PRINT_STACK:
+			fmt.Println("--- !!! Stack contents !!! ---")
+			for i := len(stack) - 1; i >= 0; i-- {
+				fmt.Println(stack[i].value)
+			}
+			fmt.Println("--- !!! End of stack !!! ---")
+
 		default:
 			fmt.Println("Unknown instruction:", instr.op_code)
 			os.Exit(1)
