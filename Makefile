@@ -1,9 +1,9 @@
 # Compiler and assembler
 AS = nasm
-CC = gcc
+LD = ld
 
 # Flags
-ASFLAGS = -f win64
+ASFLAGS = -f elf64
 LDFLAGS = 
 
 # Default file names (can be overridden by command-line variables)
@@ -15,8 +15,11 @@ EXE_FILE ?= output.exe
 all: $(EXE_FILE)
 
 $(EXE_FILE): $(OBJ_FILE)
-	$(CC) $(LDFLAGS) -o $(EXE_FILE) $(OBJ_FILE)
-	del /f $(OBJ_FILE)
+	$(LD) $(LDFLAGS) -o $(EXE_FILE) $(OBJ_FILE)
+	rm -f $(OBJ_FILE)
 
 $(OBJ_FILE): $(ASM_FILE)
 	$(AS) $(ASFLAGS) -o $(OBJ_FILE) $(ASM_FILE)
+
+clean:
+	rm -f $(OBJ_FILE) $(EXE_FILE)

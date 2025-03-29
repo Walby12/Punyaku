@@ -25,7 +25,7 @@ func main() {
 		sim_prog(program)
 		os.Exit(1)
 	case "com":
-		compile_assembly(os.Args[2])
+		compile_assembly(os.Args[2], program)
 	default:
 		fmt.Println("Error: unrecognized sub command:", os.Args[1])
 	}
