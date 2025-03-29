@@ -8,29 +8,6 @@ import (
 	"strings"
 )
 
-func compile_assembly(file_path string, program []Instruction) {
-	// Generate the .asm file
-	gen_asm_file(file_path, program)
-
-	// Use filepath.Ext to get the file extension
-	path_ext := filepath.Ext(file_path)
-
-	// Use strings.TrimSuffix to remove the extension and add ".exe"
-	new_file_path_ext := strings.TrimSuffix(file_path, path_ext) + ""
-
-	// Call the Makefile to compile the assembly code
-	cmd := exec.Command("make", fmt.Sprintf("ASM_FILE=%s", file_path), fmt.Sprintf("EXE_FILE=%s", new_file_path_ext))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println("Compilation failed,", err)
-		os.Exit(-1)
-	} else {
-		fmt.Println("Compilation phase successful, file created:", new_file_path_ext)
-	}
-}
-
 func gen_code(program []Instruction) string {
 	// Start the assembly code with the necessary directives
 	start_asm_code := `%define SYS_EXIT 60
@@ -152,4 +129,21 @@ func gen_asm_file(out_file_path string, program []Instruction) {
 	}
 
 	fmt.Println("Assembly file created:", out_file_path)
+	// Use filepath.Ext to get the file extension
+	path_ext := filepath.Ext(out_file_path)
+
+	// Use strings.TrimSuffix to remove the extension and add ".exe"
+	new_file_path_ext := strings.TrimSuffix(out_file_path, path_ext) + ""
+
+	// Call the Makefile to compile the assembly code
+	cmd := exec.Command("make", fmt.Sprintf("ASM_FILE=%s", out_file_path), fmt.Sprintf("EXE_FILE=%s", new_file_path_ext))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println("Compilation failed,", err)
+		os.Exit(-1)
+	} else {
+		fmt.Println("Compilation phase successful, file created:", new_file_path_ext)
+	}
 }
